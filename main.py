@@ -67,14 +67,14 @@ class Grafo:
             arestas = arquivo.readlines()
             self.__qtd_arestas = len(arestas)
             for aresta in arestas:
-                v1, v2, weight = aresta.split()
+                v1, v2, peso = aresta.split()
                 v1 = int(v1) - 1
                 v2 = int(v2) - 1
-                weight = float(weight)
+                peso = float(peso)
 
-                self.__matriz[v1][v2] = self.__matriz[v2][v1] = weight
-                self.__vetor[v1].append((v2 + 1, weight))
-                self.__vetor[v2].append((v1 + 1, weight))
+                self.__matriz[v1][v2] = self.__matriz[v2][v1] = peso
+                self.__vetor[v1].append((v2 + 1, peso))
+                self.__vetor[v2].append((v1 + 1, peso))
 
 def representacao(grafo):
     print(f"Quantidade de vertices: {grafo.qtdVertices()}")
