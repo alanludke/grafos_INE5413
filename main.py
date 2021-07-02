@@ -1,4 +1,6 @@
 import sys
+
+
 # grafo não-dirigido e ponderado G(V, E, w)
 # V é o conjunto de vértices
 # E é o conjunto de arestas
@@ -13,6 +15,10 @@ class Grafo:
         self.__matriz = [[]]
         self.lerArquivo(nomeArquivo)
 
+    @property
+    def infinito(self):
+        return self.__infinito
+
     # retorna a quantidade de vértices;
     def qtdVertices(self):
         return self.__qtd_vertices
@@ -23,23 +29,23 @@ class Grafo:
 
     # retorna o grau do vértice v
     def grau(self, v):
-        return len(self.__vetor[v-1])
+        return len(self.__vetor[v - 1])
 
     # retorna o rótulo do vértice v
     def rotulo(self, v):
-        return self.__rotulos[v-1]
+        return self.__rotulos[v - 1]
 
     # retorna lista de tuplas com os vizinhos do vértice v
     def vizinhos(self, v):
-        return self.__vetor[v-1]
+        return self.__vetor[v - 1]
 
     # se {u, v} ∈ E, retorna verdadeiro; se não existir, retorna falso
     def haAresta(self, u, v):
-        return self.__matriz[u-1][v-1] != self.__infinito
+        return self.__matriz[u - 1][v - 1] != self.__infinito
 
     # se {u, v} ∈ E, retorna o peso da aresta {u, v}; se não existir, retorna um valor infinito positivo 1
-    def peso(self, u,v):
-        return self.__matriz[u-1][v-1]
+    def peso(self, u, v):
+        return self.__matriz[u - 1][v - 1]
 
     '''
     deve carregar um grafo a partir de um arquivo no formato abaixo. (./tests/test0.net pode ser utilizado para primeiro teste)
@@ -53,6 +59,7 @@ class Grafo:
     a c valor_do_peso
     ...
     '''
+
     def lerArquivo(self, nomeArquivo):
         with open(nomeArquivo) as arquivo:
             qtdVertices = int(arquivo.readline().split()[-1])
@@ -62,7 +69,7 @@ class Grafo:
 
             self.__vetor = [[] for _ in range(qtdVertices)]
             self.__matriz = [[self.__infinito] * qtdVertices for _ in range(qtdVertices)]
-            arquivo.readline() # pula linha que contem *edges
+            arquivo.readline()  # pula linha que contem *edges
 
             arestas = arquivo.readlines()
             self.__qtd_arestas = len(arestas)
@@ -75,6 +82,7 @@ class Grafo:
                 self.__matriz[v1][v2] = self.__matriz[v2][v1] = peso
                 self.__vetor[v1].append((v2 + 1, peso))
                 self.__vetor[v2].append((v1 + 1, peso))
+
 
 def representacao(grafo):
     print(f"Quantidade de vertices: {grafo.qtdVertices()}")
@@ -89,17 +97,49 @@ def representacao(grafo):
     vizinhos = int(input("Informe vértice para capturar vizinhos: "))
     print(f"Vizinhos: {grafo.vizinhos(vizinhos)}")
 
-    v1, v2 = input("Informe vértices para verificar existencia de aresta e peso: ").split()
-    v1 = int(v1)
-    v2 = int(v2)
+    v1, v2 = map(int, input("Informe vértices para verificar existencia de aresta e peso: ").split())
     print(f"Há aresta? {grafo.haAresta(v1, v2)}")
     print(f"Peso: {grafo.peso(v1, v2)}")
+
+
+def buscas(grafo, indiceVertice):
+    visitados = [False] * (grafo.qtdVertices() + 1)  # array de vertices conhecidos como falso
+    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infita para todos
+    ancestral = [None] * (grafo.qtdVertices() + 1)
+
+    visitados[indiceVertice] = True  # vertice de onde partiu a busca
+    distanciaInicial[indiceVertice] = 0  # distancia do vertice inicial
+    fila = [indiceVertice]  # cria fila e adicionado vertice inicial
+    listaNiveis = {0: [indiceVertice]}  # cria dicionario dos niveis
+
+    while fila:  # enquanto lista nao estiver fazia, faca:
+        verticeAtual = fila.pop(0)  # desenfileira 1 posicao
+        vizinhos = [x[0] for x in grafo.vizinhos(verticeAtual)]  # captura vertices vizinhos do indice atual, sem peso
+        for vizinho in vizinhos:  # percorre vizinhos do vertice
+            if not visitados[vizinho]:  # se o vizinho ainda nao foi visitado:
+                fila.append(vizinho)  # adiciona vertice vizinho na fila
+                visitados[vizinho] = True  # vertice do vizinho foi conhecido
+                distanciaInicial[vizinho] = distanciaInicial[verticeAtual] + 1
+                ancestral[vizinho] = verticeAtual
+
+                # cria/atualiza dicionario de vizinhos do nivel
+                vizinhosNivel = listaNiveis.get(distanciaInicial[vizinho], [])
+                vizinhosNivel.append(vizinho)
+                listaNiveis.update({distanciaInicial[vizinho]: vizinhosNivel})
+
+    # percorre dicionario imprimindo o nivel e a listagem de vertices encontrados
+    for chave, valor in listaNiveis.items():
+        print(str(chave) + ":", str(valor)[1:-1])
+
+    return distanciaInicial, ancestral
 
 
 def main():
     print("printing main")
     grafo = Grafo("./tests/test0.net")
-    representacao(grafo)
+    # representacao(grafo)
+    print(buscas(grafo, 2))
+
 
 if __name__ == '__main__':
     main()
