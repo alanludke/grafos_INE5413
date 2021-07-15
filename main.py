@@ -1,4 +1,5 @@
 import sys
+import heapq
 
 
 # grafo não-dirigido e ponderado G(V, E, w)
@@ -103,8 +104,9 @@ def representacao(grafo):
 
 
 def buscas(grafo, indiceVertice):
+    # inicializacao
     visitados = [False] * (grafo.qtdVertices() + 1)  # array de vertices conhecidos como falso
-    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infita para todos
+    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infinita para todos
     ancestral = [None] * (grafo.qtdVertices() + 1)
 
     visitados[indiceVertice] = True  # vertice de onde partiu a busca
@@ -114,7 +116,8 @@ def buscas(grafo, indiceVertice):
 
     while fila:  # enquanto lista nao estiver fazia, faca:
         verticeAtual = fila.pop(0)  # desenfileira 1 posicao
-        vizinhos = [x[0] for x in grafo.vizinhos(verticeAtual)]  # captura vertices vizinhos do indice atual, sem peso
+        vizinhos = [vizinho[0] for vizinho in
+                    grafo.vizinhos(verticeAtual)]  # captura vertices vizinhos do indice atual, sem peso
         for vizinho in vizinhos:  # percorre vizinhos do vertice
             if not visitados[vizinho]:  # se o vizinho ainda nao foi visitado:
                 fila.append(vizinho)  # adiciona vertice vizinho na fila
@@ -134,11 +137,59 @@ def buscas(grafo, indiceVertice):
     return distanciaInicial, ancestral
 
 
+def dijkstra(grafo, indiceVertice):
+    # inicializacao
+    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infinita para todos
+    distanciaInicial[indiceVertice - 1] = 0  # distancia do vertice inicial
+    ancestral = [None] * (grafo.qtdVertices() + 1)  # todos ancestrais sao nulos
+    ancestral[indiceVertice - 1] = indiceVertice  # ancestral do vértice inicial é ele mesmo
+
+    DISTANCIA, INDICE, VALIDO = 0, 1, 2
+    # definir heap min, "senhas" minimas exceto o vertice inicial --- O(n)
+    heap = [[0, indiceVertice, True]] + [[distanciaInicial[i], i, True] for i in range(len(distanciaInicial)) if i != (indiceVertice - 1)]
+
+    while heap:  # enquanto heap não estiver vazia
+        # atender a menor "senha", extractmin --- O(log n)
+        verticeAtual = heapq.heappop(heap)
+
+        for vizinho in grafo.vizinhos(verticeAtual[INDICE]):
+            tentativaNovaDistancia = distanciaInicial[verticeAtual[INDICE] - 1] \
+                                     + grafo.peso(verticeAtual[INDICE], vizinho[0])
+
+            if distanciaInicial[vizinho[0] - 1] > tentativaNovaDistancia:
+                distanciaInicial[vizinho[0] - 1] = tentativaNovaDistancia  # decrementa chave --- O(log n)
+                ancestral[vizinho[0] - 1] = verticeAtual[INDICE]
+
+                for i in range(len(heap)):
+                    if heap[i][INDICE] == vizinho[0] - 1:
+                        heap[i][VALIDO] = False
+                        heapq.heappush(heap, [tentativaNovaDistancia, vizinho[0], True])
+
+    # imprimindo vertice destino, caminho percorrido e distancia
+    for i in range(len(distanciaInicial) - 1):
+        caminhos = []
+        if ancestral[i] is not None:
+            caminhos.append(str(i + 1))
+            if i + 1 != indiceVertice:
+                indice = i
+                while True:
+                    caminhos.append(str(ancestral[indice]))
+                    if ancestral[indice] == indiceVertice:
+                        break
+                    indice = ancestral[indice] - 1
+            caminhos.reverse()
+
+        print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
+
+
 def main():
     print("printing main")
     grafo = Grafo("./tests/test0.net")
-    # representacao(grafo)
+    representacao(grafo)
     print(buscas(grafo, 2))
+
+    grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
+    dijkstra(grafo_dijkstra, 1)
 
 
 if __name__ == '__main__':
