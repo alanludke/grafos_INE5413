@@ -201,6 +201,7 @@ def dijkstra(grafo, indiceVertice):
             caminhos.reverse()
 
         print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
+        return distanciaInicial, ancestral
 
 def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
     #print(f'verticeInicial: {verticeInicial}')
@@ -222,11 +223,11 @@ def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
         if(verticeInicial == verticeAtual):
             tour = removeDuplicatas(tour)
             return 1, tour, arestasVisitadas;
-        
+
         elif verticeAtual == verticeSeguinte and False not in arestasVisitadas:
             return 0, None, None;
 
-# Recebe uma lista de listas e retorna uma lista com todos os elementos 
+# Recebe uma lista de listas e retorna uma lista com todos os elementos
 def desempacotar(list_of_lists):
     if len(list_of_lists) == 0:
         return list_of_lists
@@ -251,7 +252,7 @@ def buscarSubcicloEuleriano(grafo):
         #print(f'arestasVisitadas: {arestasVisitadas}')
         #print(f'tour: {tour}')
         #print(f'arestasVisitadasModificadas: {arestasVisitadasModificadas}')
-        
+
         while True:
             if False in arestasVisitadasModificadas:
                 indexFalse = arestasVisitadasModificadas.index(False)
@@ -259,7 +260,7 @@ def buscarSubcicloEuleriano(grafo):
                 arestaSubciclo = arestas[indexFalse]
                 #print(f'arestaSubciclo: {arestaSubciclo}')
                 verticeSubciclo=arestaSubciclo[0]
-                
+
                 #print(f'verticeSubciclo: {verticeSubciclo}')
                 _, subtour, arestasVisitadas= buscarSubciclo(grafo, verticeSubciclo, arestasVisitadas)
                 print(f'tour: {tour}')
