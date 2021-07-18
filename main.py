@@ -201,7 +201,7 @@ def dijkstra(grafo, indiceVertice):
             caminhos.reverse()
 
         print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
-        return distanciaInicial, ancestral
+    return distanciaInicial, ancestral
 
 def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
     #print(f'verticeInicial: {verticeInicial}')
@@ -288,13 +288,13 @@ def buscarSubcicloEuleriano(grafo):
 
 def main():
     #grafo = Grafo("./tests/test0.net")
-    grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEulerianoDificil.net")
+    # grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEulerianoDificil.net")
     #grafo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
     #representacao(grafo)
     #print(buscas(grafo, 2))
-    buscarSubcicloEuleriano(grafo)
-    #grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
-    #dijkstra(grafo_dijkstra, 1)
+    # buscarSubcicloEuleriano(grafo)
+    grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
+    dijkstra(grafo_dijkstra, 1)
 
 if __name__ == '__main__':
     main()
