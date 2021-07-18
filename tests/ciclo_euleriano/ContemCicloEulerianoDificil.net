@@ -1,0 +1,25 @@
+*vertices 10
+1 "Itajai"
+2 "Camboriu"
+3 "Brusque"
+4 "Nova Trento"
+5 "Guabiruba"
+6 "Navegantes"
+7 "Teste"
+8 "Teste2"
+9 "Teste3"
+10 "Teste4"
+*edges
+1 2 1.0
+1 6 1.0
+2 3 1.0
+3 6 1.0
+3 4 1.0
+3 5 1.0
+4 5 1.0
+4 7 1.0
+4 8 1.0
+7 8 1.0
+8 9 1.0
+8 10 1.0
+9 10 1.0

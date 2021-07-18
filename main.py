@@ -1,5 +1,9 @@
 import sys
 import heapq
+import numpy as np
+import random
+import itertools
+from collections import OrderedDict
 
 
 # grafo não-dirigido e ponderado G(V, E, w)
@@ -24,9 +28,20 @@ class Grafo:
     def qtdVertices(self):
         return self.__qtd_vertices
 
+    # retorna o a matriz
+    def matriz(self):
+        return self.__matriz
+
     # retorna a quantidade de arestas
     def qtdArestas(self):
         return self.__qtd_arestas
+
+    # retorna vertices que ligam na aresta
+    def vertice(self, aresta):
+        return self.__arestas[aresta][0]
+
+    def arestas(self):
+        return self.__arestas
 
     # retorna o grau do vértice v
     def grau(self, v):
@@ -74,8 +89,10 @@ class Grafo:
 
             arestas = arquivo.readlines()
             self.__qtd_arestas = len(arestas)
+            self.__arestas = []
             for aresta in arestas:
                 v1, v2, peso = aresta.split()
+                self.__arestas.append([int(v1), int(v2)])
                 v1 = int(v1) - 1
                 v2 = int(v2) - 1
                 peso = float(peso)
@@ -136,6 +153,10 @@ def buscas(grafo, indiceVertice):
 
     return distanciaInicial, ancestral
 
+def removeDuplicatas(lista):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in lista if not (x in seen or seen_add(x))]
 
 def dijkstra(grafo, indiceVertice):
     # inicializacao
@@ -181,16 +202,98 @@ def dijkstra(grafo, indiceVertice):
 
         print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
 
+def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
+    #print(f'verticeInicial: {verticeInicial}')
+    qtdArestas = grafo.qtdArestas()
+    qtdVertices = grafo.qtdVertices()
+
+    tour = []
+    verticeAtual = int(verticeInicial)
+    while True:
+        for u in range(qtdArestas):
+            aresta = grafo.arestas()[u]
+            if verticeAtual in aresta and arestasVisitadas[u] == False:
+                arestasVisitadas[u] = True
+                tour.append(verticeAtual)
+                verticeSeguinte = [x for x in aresta if x != verticeAtual][0]
+                tour.append(verticeSeguinte)
+                verticeAtual = verticeSeguinte
+
+        if(verticeInicial == verticeAtual):
+            tour = removeDuplicatas(tour)
+            return 1, tour, arestasVisitadas;
+        
+        elif verticeAtual == verticeSeguinte and False not in arestasVisitadas:
+            return 0, None, None;
+
+# Recebe uma lista de listas e retorna uma lista com todos os elementos 
+def desempacotar(list_of_lists):
+    if len(list_of_lists) == 0:
+        return list_of_lists
+    if isinstance(list_of_lists[0], list):
+        return desempacotar(list_of_lists[0]) + desempacotar(list_of_lists[1:])
+    return list_of_lists[:1] + desempacotar(list_of_lists[1:])
+
+def buscarSubcicloEuleriano(grafo):
+    qtdArestas = grafo.qtdArestas()
+    # seleciona uma aresta randomica pegar um vértice conectado
+    random_aresta = random.randint(0, qtdArestas-1)
+    # seleciona um dos vértices
+    # verticeInicial = grafo.vertice(random_aresta)
+    verticeInicial = 1
+    #print(f'verticeInicial: {verticeInicial}')
+
+    arestasVisitadas = qtdArestas * [False]
+    possuiSubciclo, tour, arestasVisitadasModificadas = buscarSubciclo(grafo, verticeInicial, arestasVisitadas)
+    if possuiSubciclo == 1:
+        arestas = grafo.arestas()
+        #print(f'arestas: {arestas}')
+        #print(f'arestasVisitadas: {arestasVisitadas}')
+        #print(f'tour: {tour}')
+        #print(f'arestasVisitadasModificadas: {arestasVisitadasModificadas}')
+        
+        while True:
+            if False in arestasVisitadasModificadas:
+                indexFalse = arestasVisitadasModificadas.index(False)
+                #print(f'indexFalse: {indexFalse}')
+                arestaSubciclo = arestas[indexFalse]
+                #print(f'arestaSubciclo: {arestaSubciclo}')
+                verticeSubciclo=arestaSubciclo[0]
+                
+                #print(f'verticeSubciclo: {verticeSubciclo}')
+                _, subtour, arestasVisitadas= buscarSubciclo(grafo, verticeSubciclo, arestasVisitadas)
+                print(f'tour: {tour}')
+                tour = desempacotar(tour)
+                print(f'tour: {tour}')
+
+
+                indexTourReplace = tour.index(verticeSubciclo)
+                #print(f'indexTourReplace: {indexTourReplace}')
+                #print(f'tour: {tour}')
+                tourAtualizado = tour
+                tour.insert(indexTourReplace, subtour)
+                #print(f'tourAtualizado: {tourAtualizado}')
+                if None in tour:
+                    print(0)
+                    return 0
+                elif False not in arestasVisitadas:
+                    tourAtualizadoDesempacotado = desempacotar(tourAtualizado)
+                    tourAtualizadoDesempacotado.append(tourAtualizadoDesempacotado[0])
+                    tourFormatado = ' '.join(map(str,tourAtualizadoDesempacotado))
+                    print(1)
+                    print(tourFormatado)
+                    return 1,tourFormatado
+
 
 def main():
-    print("printing main")
-    grafo = Grafo("./tests/test0.net")
-    representacao(grafo)
-    print(buscas(grafo, 2))
-
-    grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
-    dijkstra(grafo_dijkstra, 1)
-
+    #grafo = Grafo("./tests/test0.net")
+    grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEulerianoDificil.net")
+    #grafo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
+    #representacao(grafo)
+    #print(buscas(grafo, 2))
+    buscarSubcicloEuleriano(grafo)
+    #grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
+    #dijkstra(grafo_dijkstra, 1)
 
 if __name__ == '__main__':
     main()
