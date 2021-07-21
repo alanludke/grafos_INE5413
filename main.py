@@ -285,6 +285,27 @@ def buscarSubcicloEuleriano(grafo):
                     print(tourFormatado)
                     return 1,tourFormatado
 
+def floyd_warshall(grafo):
+	matriz = grafo.matriz()
+	qtd_vertices = grafo.qtdVertices()
+	for k in range(qtd_vertices): # k é o vértice intermediário a ser testado
+		for i in range(qtd_vertices):
+			for j in range(qtd_vertices):
+				if matriz[i][k] != sys.maxsize and matriz[k][j] != sys.maxsize: # se aresta i-> k ou k-> j for infinito a matriz não muda
+					if matriz[i][k] + matriz[k][j] < matriz[i][j]: # se o caminho passando por k for o menor, substitui
+						matriz[i][j] = matriz[i][k] + matriz[k][j] # i-> k-> j é menor que i-> j
+	
+	print_floyd_warshall(matriz)
+
+def print_floyd_warshall(matriz):
+	for sainte in range(len(matriz[0])):
+		print(sainte+1,end="") # print do vértice
+		print(":",end="")
+		for entrante in range(len(matriz[sainte])):
+			print(int(matriz[sainte][entrante]),end="") # print das distâncias do vértice sainte pra cada um do outros
+			if(entrante < len(matriz[sainte])-1):
+				print(",",end="")
+		print()
 
 def main():
     #grafo = Grafo("./tests/test0.net")
@@ -295,6 +316,7 @@ def main():
     # buscarSubcicloEuleriano(grafo)
     grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
     dijkstra(grafo_dijkstra, 1)
+    #floyd_warshall(grafo)
 
 if __name__ == '__main__':
     main()
