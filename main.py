@@ -84,7 +84,8 @@ class Grafo:
                 self.__rotulos.append(arquivo.readline().split()[1])
 
             self.__vetor = [[] for _ in range(qtdVertices)]
-            self.__matriz = [[self.__infinito] * qtdVertices for _ in range(qtdVertices)]
+            self.__matriz = [[self.__infinito] *
+                             qtdVertices for _ in range(qtdVertices)]
             arquivo.readline()  # pula linha que contem *edges
 
             arestas = arquivo.readlines()
@@ -115,15 +116,18 @@ def representacao(grafo):
     vizinhos = int(input("Informe vértice para capturar vizinhos: "))
     print(f"Vizinhos: {grafo.vizinhos(vizinhos)}")
 
-    v1, v2 = map(int, input("Informe vértices para verificar existencia de aresta e peso: ").split())
+    v1, v2 = map(int, input(
+        "Informe vértices para verificar existencia de aresta e peso: ").split())
     print(f"Há aresta? {grafo.haAresta(v1, v2)}")
     print(f"Peso: {grafo.peso(v1, v2)}")
 
 
 def buscas(grafo, indiceVertice):
     # inicializacao
-    visitados = [False] * (grafo.qtdVertices() + 1)  # array de vertices conhecidos como falso
-    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infinita para todos
+    # array de vertices conhecidos como falso
+    visitados = [False] * (grafo.qtdVertices() + 1)
+    # distancia infinita para todos
+    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)
     ancestral = [None] * (grafo.qtdVertices() + 1)
 
     visitados[indiceVertice] = True  # vertice de onde partiu a busca
@@ -153,21 +157,27 @@ def buscas(grafo, indiceVertice):
 
     return distanciaInicial, ancestral
 
+
 def removeDuplicatas(lista):
     seen = set()
     seen_add = seen.add
     return [x for x in lista if not (x in seen or seen_add(x))]
 
+
 def dijkstra(grafo, indiceVertice):
     # inicializacao
-    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)  # distancia infinita para todos
+    # distancia infinita para todos
+    distanciaInicial = [grafo.infinito] * (grafo.qtdVertices() + 1)
     distanciaInicial[indiceVertice - 1] = 0  # distancia do vertice inicial
-    ancestral = [None] * (grafo.qtdVertices() + 1)  # todos ancestrais sao nulos
-    ancestral[indiceVertice - 1] = indiceVertice  # ancestral do vértice inicial é ele mesmo
+    # todos ancestrais sao nulos
+    ancestral = [None] * (grafo.qtdVertices() + 1)
+    # ancestral do vértice inicial é ele mesmo
+    ancestral[indiceVertice - 1] = indiceVertice
 
     DISTANCIA, INDICE, VALIDO = 0, 1, 2
     # definir heap min, "senhas" minimas exceto o vertice inicial --- O(n)
-    heap = [[0, indiceVertice, True]] + [[distanciaInicial[i], i, True] for i in range(len(distanciaInicial)) if i != (indiceVertice - 1)]
+    heap = [[0, indiceVertice, True]] + [[distanciaInicial[i], i, True]
+                                         for i in range(len(distanciaInicial)) if i != (indiceVertice - 1)]
 
     while heap:  # enquanto heap não estiver vazia
         # atender a menor "senha", extractmin --- O(log n)
@@ -175,16 +185,18 @@ def dijkstra(grafo, indiceVertice):
 
         for vizinho in grafo.vizinhos(verticeAtual[INDICE]):
             tentativaNovaDistancia = distanciaInicial[verticeAtual[INDICE] - 1] \
-                                     + grafo.peso(verticeAtual[INDICE], vizinho[0])
+                + grafo.peso(verticeAtual[INDICE], vizinho[0])
 
             if distanciaInicial[vizinho[0] - 1] > tentativaNovaDistancia:
-                distanciaInicial[vizinho[0] - 1] = tentativaNovaDistancia  # decrementa chave --- O(log n)
+                # decrementa chave --- O(log n)
+                distanciaInicial[vizinho[0] - 1] = tentativaNovaDistancia
                 ancestral[vizinho[0] - 1] = verticeAtual[INDICE]
 
                 for i in range(len(heap)):
                     if heap[i][INDICE] == vizinho[0] - 1:
                         heap[i][VALIDO] = False
-                        heapq.heappush(heap, [tentativaNovaDistancia, vizinho[0], True])
+                        heapq.heappush(
+                            heap, [tentativaNovaDistancia, vizinho[0], True])
 
     # imprimindo vertice destino, caminho percorrido e distancia
     for i in range(len(distanciaInicial) - 1):
@@ -203,8 +215,8 @@ def dijkstra(grafo, indiceVertice):
         print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
     return distanciaInicial, ancestral
 
+# A partir de um grafo, um vérite inicial e uma lista de aresta visitadas, determina se há um subciclo
 def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
-    #print(f'verticeInicial: {verticeInicial}')
     qtdArestas = grafo.qtdArestas()
     qtdVertices = grafo.qtdVertices()
 
@@ -222,10 +234,10 @@ def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
 
         if(verticeInicial == verticeAtual):
             tour = removeDuplicatas(tour)
-            return 1, tour, arestasVisitadas;
+            return 1, tour, arestasVisitadas
 
         elif verticeAtual == verticeSeguinte and False not in arestasVisitadas:
-            return 0, None, None;
+            return 0, None, None
 
 # Recebe uma lista de listas e retorna uma lista com todos os elementos
 def desempacotar(list_of_lists):
@@ -235,88 +247,92 @@ def desempacotar(list_of_lists):
         return desempacotar(list_of_lists[0]) + desempacotar(list_of_lists[1:])
     return list_of_lists[:1] + desempacotar(list_of_lists[1:])
 
+# Recebe um grafo e retorna se ele tem um ciclo euleriano (output: 1\n vértices que pertencem a este ciclo) ou não (output: 0)
 def buscarSubcicloEuleriano(grafo):
     qtdArestas = grafo.qtdArestas()
-    # seleciona uma aresta randomica pegar um vértice conectado
-    random_aresta = random.randint(0, qtdArestas-1)
     # seleciona um dos vértices
-    # verticeInicial = grafo.vertice(random_aresta)
     verticeInicial = 1
-    #print(f'verticeInicial: {verticeInicial}')
 
+    # inicializa a lista de arestasVisitadas
     arestasVisitadas = qtdArestas * [False]
-    possuiSubciclo, tour, arestasVisitadasModificadas = buscarSubciclo(grafo, verticeInicial, arestasVisitadas)
+
+    # chama método buscarSubciclo identificando se há(possuiSubciclo), qual o tour percorrido(tour) e uma lista de arestasVisitadas já modificada
+    possuiSubciclo, tour, arestasVisitadasModificadas = buscarSubciclo(
+        grafo, verticeInicial, arestasVisitadas)
     if possuiSubciclo == 1:
         arestas = grafo.arestas()
-        #print(f'arestas: {arestas}')
-        #print(f'arestasVisitadas: {arestasVisitadas}')
-        #print(f'tour: {tour}')
-        #print(f'arestasVisitadasModificadas: {arestasVisitadasModificadas}')
 
+        # enquanto tivermos arestas que não foram visitadas, percorre
         while True:
             if False in arestasVisitadasModificadas:
                 indexFalse = arestasVisitadasModificadas.index(False)
-                #print(f'indexFalse: {indexFalse}')
                 arestaSubciclo = arestas[indexFalse]
-                #print(f'arestaSubciclo: {arestaSubciclo}')
-                verticeSubciclo=arestaSubciclo[0]
+                verticeSubciclo = arestaSubciclo[0]
 
-                #print(f'verticeSubciclo: {verticeSubciclo}')
-                _, subtour, arestasVisitadas= buscarSubciclo(grafo, verticeSubciclo, arestasVisitadas)
-                print(f'tour: {tour}')
+                _, subtour, arestasVisitadas = buscarSubciclo(
+                    grafo, verticeSubciclo, arestasVisitadas)
+
+                # Torna a lista de listas(tour) uma lista só
                 tour = desempacotar(tour)
-                print(f'tour: {tour}')
-
 
                 indexTourReplace = tour.index(verticeSubciclo)
-                #print(f'indexTourReplace: {indexTourReplace}')
-                #print(f'tour: {tour}')
                 tourAtualizado = tour
                 tour.insert(indexTourReplace, subtour)
-                #print(f'tourAtualizado: {tourAtualizado}')
                 if None in tour:
+                    # configura output no formato correto
                     print(0)
                     return 0
                 elif False not in arestasVisitadas:
+                    # configura output no formato correto
                     tourAtualizadoDesempacotado = desempacotar(tourAtualizado)
-                    tourAtualizadoDesempacotado.append(tourAtualizadoDesempacotado[0])
-                    tourFormatado = ' '.join(map(str,tourAtualizadoDesempacotado))
+                    tourAtualizadoDesempacotado.append(
+                        tourAtualizadoDesempacotado[0])
+                    tourFormatado = ' '.join(
+                        map(str, tourAtualizadoDesempacotado))
                     print(1)
                     print(tourFormatado)
-                    return 1,tourFormatado
+                    return 1, tourFormatado
+
 
 def floyd_warshall(grafo):
-	matriz = grafo.matriz()
-	qtd_vertices = grafo.qtdVertices()
-	for k in range(qtd_vertices): # k é o vértice intermediário a ser testado
-		for i in range(qtd_vertices):
-			for j in range(qtd_vertices):
-				if matriz[i][k] != sys.maxsize and matriz[k][j] != sys.maxsize: # se aresta i-> k ou k-> j for infinito a matriz não muda
-					if matriz[i][k] + matriz[k][j] < matriz[i][j]: # se o caminho passando por k for o menor, substitui
-						matriz[i][j] = matriz[i][k] + matriz[k][j] # i-> k-> j é menor que i-> j
-	
-	print_floyd_warshall(matriz)
+    matriz = grafo.matriz()
+    qtd_vertices = grafo.qtdVertices()
+    for k in range(qtd_vertices):  # k é o vértice intermediário a ser testado
+        for i in range(qtd_vertices):
+            for j in range(qtd_vertices):
+                # se aresta i-> k ou k-> j for infinito a matriz não muda
+                if matriz[i][k] != sys.maxsize and matriz[k][j] != sys.maxsize:
+                    # se o caminho passando por k for o menor, substitui
+                    if matriz[i][k] + matriz[k][j] < matriz[i][j]:
+                        # i-> k-> j é menor que i-> j
+                        matriz[i][j] = matriz[i][k] + matriz[k][j]
+
+    print_floyd_warshall(matriz)
+
 
 def print_floyd_warshall(matriz):
-	for sainte in range(len(matriz[0])):
-		print(sainte+1,end="") # print do vértice
-		print(":",end="")
-		for entrante in range(len(matriz[sainte])):
-			print(int(matriz[sainte][entrante]),end="") # print das distâncias do vértice sainte pra cada um do outros
-			if(entrante < len(matriz[sainte])-1):
-				print(",",end="")
-		print()
+    for sainte in range(len(matriz[0])):
+        print(sainte+1, end="")  # print do vértice
+        print(":", end="")
+        for entrante in range(len(matriz[sainte])):
+            # print das distâncias do vértice sainte pra cada um do outros
+            print(int(matriz[sainte][entrante]), end="")
+            if(entrante < len(matriz[sainte])-1):
+                print(",", end="")
+        print()
+
 
 def main():
     #grafo = Grafo("./tests/test0.net")
-    # grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEulerianoDificil.net")
-    #grafo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
-    #representacao(grafo)
+    #grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEuleriano.net")
+    grafo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
+    # representacao(grafo)
     #print(buscas(grafo, 2))
-    # buscarSubcicloEuleriano(grafo)
-    grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
-    dijkstra(grafo_dijkstra, 1)
-    #floyd_warshall(grafo)
+    buscarSubcicloEuleriano(grafo)
+    #grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
+    #dijkstra(grafo_dijkstra, 1)
+    # floyd_warshall(grafo)
+
 
 if __name__ == '__main__':
     main()
