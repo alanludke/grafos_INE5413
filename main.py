@@ -1,9 +1,5 @@
 import sys
 import heapq
-import numpy as np
-import random
-import itertools
-from collections import OrderedDict
 
 
 # grafo não-dirigido e ponderado G(V, E, w)
@@ -152,6 +148,7 @@ def buscas(grafo, indiceVertice):
                 listaNiveis.update({distanciaInicial[vizinho]: vizinhosNivel})
 
     # percorre dicionario imprimindo o nivel e a listagem de vertices encontrados
+    print("\nBusca em largura:")
     for chave, valor in listaNiveis.items():
         print(str(chave) + ":", str(valor)[1:-1])
 
@@ -185,7 +182,7 @@ def dijkstra(grafo, indiceVertice):
 
         for vizinho in grafo.vizinhos(verticeAtual[INDICE]):
             tentativaNovaDistancia = distanciaInicial[verticeAtual[INDICE] - 1] \
-                + grafo.peso(verticeAtual[INDICE], vizinho[0])
+                                     + grafo.peso(verticeAtual[INDICE], vizinho[0])
 
             if distanciaInicial[vizinho[0] - 1] > tentativaNovaDistancia:
                 # decrementa chave --- O(log n)
@@ -199,6 +196,7 @@ def dijkstra(grafo, indiceVertice):
                             heap, [tentativaNovaDistancia, vizinho[0], True])
 
     # imprimindo vertice destino, caminho percorrido e distancia
+    print("\nDijkstra:")
     for i in range(len(distanciaInicial) - 1):
         caminhos = []
         if ancestral[i] is not None:
@@ -214,6 +212,7 @@ def dijkstra(grafo, indiceVertice):
 
         print(f"{i + 1}: {','.join(caminhos)}; d={distanciaInicial[i]}")
     return distanciaInicial, ancestral
+
 
 # A partir de um grafo, um vérite inicial e uma lista de aresta visitadas, determina se há um subciclo
 def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
@@ -232,12 +231,13 @@ def buscarSubciclo(grafo, verticeInicial, arestasVisitadas):
                 tour.append(verticeSeguinte)
                 verticeAtual = verticeSeguinte
 
-        if(verticeInicial == verticeAtual):
+        if (verticeInicial == verticeAtual):
             tour = removeDuplicatas(tour)
             return 1, tour, arestasVisitadas
 
         elif verticeAtual == verticeSeguinte and False not in arestasVisitadas:
             return 0, None, None
+
 
 # Recebe uma lista de listas e retorna uma lista com todos os elementos
 def desempacotar(list_of_lists):
@@ -246,6 +246,7 @@ def desempacotar(list_of_lists):
     if isinstance(list_of_lists[0], list):
         return desempacotar(list_of_lists[0]) + desempacotar(list_of_lists[1:])
     return list_of_lists[:1] + desempacotar(list_of_lists[1:])
+
 
 # Recebe um grafo e retorna se ele tem um ciclo euleriano (output: 1\n vértices que pertencem a este ciclo) ou não (output: 0)
 def buscarSubcicloEuleriano(grafo):
@@ -311,27 +312,35 @@ def floyd_warshall(grafo):
 
 
 def print_floyd_warshall(matriz):
+    print("\nFloyd Warshall:")
     for sainte in range(len(matriz[0])):
-        print(sainte+1, end="")  # print do vértice
+        print(sainte + 1, end="")  # print do vértice
         print(":", end="")
         for entrante in range(len(matriz[sainte])):
             # print das distâncias do vértice sainte pra cada um do outros
             print(int(matriz[sainte][entrante]), end="")
-            if(entrante < len(matriz[sainte])-1):
+            if (entrante < len(matriz[sainte]) - 1):
                 print(",", end="")
         print()
 
 
 def main():
-    #grafo = Grafo("./tests/test0.net")
-    #grafo = Grafo("./tests/ciclo_euleriano/ContemCicloEuleriano.net")
-    grafo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
-    # representacao(grafo)
-    #print(buscas(grafo, 2))
-    buscarSubcicloEuleriano(grafo)
-    #grafo_dijkstra = Grafo("./tests/mesa_dijkstra.net")
-    #dijkstra(grafo_dijkstra, 1)
-    # floyd_warshall(grafo)
+    print("Carregando teste com ciclo euleriano")
+    grafoComCiclo = Grafo("./tests/ciclo_euleriano/ContemCicloEuleriano.net")
+    buscarSubcicloEuleriano(grafoComCiclo)
+    print("Carregando teste sem ciclo euleriano")
+    grafoSemCiclo = Grafo("./tests/ciclo_euleriano/SemCicloEuleriano.net")
+    buscarSubcicloEuleriano(grafoSemCiclo)
+
+    print("Carregando teste dolphins")
+    grafo = Grafo("./tests/pequenas/dolphins.net")
+    representacao(grafo)
+    vertice_buscas = int(input("Entre com vértice para busca em largura: "))
+    buscas(grafo, vertice_buscas)
+
+    vertice_dijkstra = int(input("Entre com vértice para dijkstra: "))
+    dijkstra(grafo, vertice_dijkstra)
+    floyd_warshall(grafo)
 
 
 if __name__ == '__main__':
