@@ -170,11 +170,7 @@ def componentes_fortemente_conexas(grafo):
     return At
 
 
-def main():
+def a2():
     grafo = Grafo("./tests/mesa_dfs.net")
     print("Componentes fortemente conexas")
     componentes_fortemente_conexas(grafo)
-
-
-if __name__ == '__main__':
-    main()
