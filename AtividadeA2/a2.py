@@ -8,6 +8,7 @@ import sys
 class Grafo:
     def __init__(self, nomeArquivo):
         self.__infinito = sys.maxsize
+        self.__vertices = {}
         self.__rotulos = []
         with open(nomeArquivo) as arquivo:
             qtdVertices = int(arquivo.readline().split()[-1])
@@ -15,6 +16,9 @@ class Grafo:
             for _ in range(qtdVertices):
                 linha = arquivo.readline()
                 self.__rotulos.append(linha[linha.index(" ")+1:-1])
+                temp = linha.split(' "')
+                k,v = temp[0],temp[1]
+                self.__vertices[int(k)] = v.rstrip("\n").strip('\"')
 
             self.__vetor = [[] for _ in range(qtdVertices)]
             self.__matriz = [[self.__infinito] *
@@ -43,9 +47,9 @@ class Grafo:
     def qtdVertices(self):
         return self.__qtd_vertices
 
-    # retorna o vetor
-    def vetor(self):
-        return self.__vetor
+    # retorna o vetor de vértices
+    def getVertices(self):
+        return self.__vertices
 
     # retorna a matriz
     def matriz(self):
@@ -65,6 +69,10 @@ class Grafo:
     # retorna o grau do vértice v
     def grau(self, v):
         return len(self.__vetor[v - 1])
+
+    # retorna o rótulo do vértice v
+    def rotulos(self):
+        return self.__rotulos
 
     # retorna o rótulo do vértice v
     def rotulo(self, v):
@@ -169,8 +177,42 @@ def componentes_fortemente_conexas(grafo):
         print(", ".join(map(str, cfc[c])))
     return At
 
+'''
+Entrada: grafo dirigido e não ponderado G=(V, A) e ordena linearmente todos os vértices
+tal que se existe um arco (u, v) ∈ A então u aparece antes de v na ordenação.
+'''
+def ordenacao_topologica(grafo):
+    qtdVertices = grafo.qtdVertices()
+    foiVisitado = [False] * (qtdVertices+1)
+    ordem = []
+    #tempo = 0
+
+    for each in grafo.getVertices():
+        if (foiVisitado[each] == False):
+            dfs_visit_ot(grafo, each, foiVisitado, ordem)
+
+    for i, each in enumerate(ordem):
+        print(grafo.rotulo(each), end='')
+        if i < len(ordem) - 1:
+            print(' > ', end='')
+    print()
+
+def dfs_visit_ot(grafo, each, foiVisitado, ordem):
+    foiVisitado[each] = True
+    #tempo = tempp + 1
+
+    for i in grafo.vizinhos(each):
+         if (foiVisitado[each] == False):
+             dfs_visit_ot(grafo, each, foiVisitado, ordem)
+
+    ordem.append(each)
 
 def a2():
-    grafo = Grafo("./tests/mesa_dfs.net")
-    print("Componentes fortemente conexas")
-    componentes_fortemente_conexas(grafo)
+    # exe1
+    # grafo = Grafo("./tests/mesa_dfs.net")
+    # print("Componentes fortemente conexas")
+    # componentes_fortemente_conexas(grafo)
+
+    #exe2
+    grafo = Grafo("./tests/dirigidos/manha.net")
+    ordenacao_topologica(grafo)
