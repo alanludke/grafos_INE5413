@@ -90,6 +90,7 @@ class Grafo:
     def peso(self, u, v):
         return self.__matriz[u - 1][v - 1]
 
+    # cria um novo grafo correspondene ao grafo inicial, porém transposto. o retorno é o grafo transposto
     def transposto(self):
         transposto = Grafo.__new__(Grafo)
         transposto.__qtd_vertices = self.__qtd_vertices
@@ -98,12 +99,14 @@ class Grafo:
         transposto.__rotulos = self.__rotulos.copy()
         transposto.__orientado = self.__orientado
 
+        # matriz de adjacencias transposta
         matriz = [[0] * self.__qtd_vertices for _ in range(self.__qtd_vertices)]
         for v1 in range(self.__qtd_vertices):
             for v2 in range(self.__qtd_vertices):
                 matriz[v2][v1] = self.__matriz[v1][v2]
         transposto.__matriz = matriz
 
+        # vetor de adjacencias transposto
         vetor = [[] for _ in range(self.__qtd_vertices)]
         for v1 in range(self.__qtd_vertices):
             for (v2, peso) in self.__vetor[v1]:
@@ -114,28 +117,30 @@ class Grafo:
 
 
 def visita(grafo, u, C, T, A, F, tempo):
-    C[u - 1] = True
+    C[u - 1] = True  # visitado como verdadeiro
     tempo += 1
-    T[u - 1] = tempo
+    T[u - 1] = tempo  # atualiza tempo inicial
 
     vizinhos = grafo.vizinhos(u)
     for (vizinho, _) in vizinhos:
         if not C[vizinho - 1]:
             A[vizinho - 1] = u
+            # visita uma vez para cada vértice
             tempo = visita(grafo, vizinho, C, T, A, F, tempo)
 
     tempo += 1
-    F[u - 1] = tempo
+    F[u - 1] = tempo  # atualiza tempo final
     return tempo
 
 
 def busca_profundidade(grafo, ordenado=None):
     qtdVertices = grafo.qtdVertices()
-    C = [False] * qtdVertices
-    T = [grafo.infinito] * qtdVertices
-    F = [grafo.infinito] * qtdVertices
-    A = [None] * qtdVertices
-    tempo = 0
+    # inicializacao
+    C = [False] * qtdVertices  # visitado = falso
+    T = [grafo.infinito] * qtdVertices  # tempo inicial infinito
+    F = [grafo.infinito] * qtdVertices  # tempo inicial infinito
+    A = [None] * qtdVertices  # ancestrais nulos
+    tempo = 0  # configura tempo de inicio
 
     if ordenado is not None:
         vertices = [(ordenado[i - 1], i) for i in range(1, qtdVertices + 1)]
@@ -148,17 +153,20 @@ def busca_profundidade(grafo, ordenado=None):
         if not C[u - 1]:
             tempo = visita(grafo, u, C, T, A, F, tempo)
 
-    return (C, T, A, F)
+    return C, T, A, F
 
 
 def componentes_fortemente_conexas(grafo):
+    # chama DFS para computar os tempos de término para cada vértice
+    # C(visitado), T(tempo inicial), A(ancestral), F(tempo final)
     C, T, A, F = busca_profundidade(grafo)
+    # cria grafo transposto
     transposto = grafo.transposto()
-    print(grafo.matriz)
-    print(transposto.matriz)
 
+    # chama DFS para tranposto
     Ct, Tt, At, Ft = busca_profundidade(transposto, ordenado=F)
 
+    # dicionario com chave determinada pelo indice de pesquisa e array de componentes fortemente conexos no valor
     cfc = {}
     for i in range(len(At)):
         if At[i] is None:
