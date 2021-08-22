@@ -1,4 +1,5 @@
 import sys
+import numpy
 
 
 # grafo não-dirigido e ponderado G(V, E, w)
@@ -214,6 +215,84 @@ def dfs_visit_ot(grafo, each, foiVisitado, ordem):
              dfs_visit_ot(grafo, each, foiVisitado, ordem)
 
     ordem.append(each)
+    
+#--------------------- Q3 -----------------------------
+
+def prepare_sort(arestas, low, high):
+	pivot = arestas[high][2]
+	item = low - 1
+	
+	for i in range(low,high):
+		if arestas[i][2] <= pivot:
+			item = item + 1
+			(arestas[item], arestas[i]) = (arestas[i], arestas[item])
+			
+	(arestas[item+1], arestas[high]) = (arestas[high], arestas[item+1])
+	return item+1
+	
+def quick_sort(arestas, low, high):
+	if low < high:
+		pivot = prepare_sort(arestas, low, high)
+		quick_sort(arestas, low, pivot-1)
+		quick_sort(arestas, pivot+1, high)
+
+def array_compare_different(a, b):
+	counter = 0
+	for i in a:
+		for j in b:
+			if i == j:
+				counter += counter
+				break;
+	if counter < len(a):
+		return True
+	else:
+		return False			
+		
+def _subarvore(vertice, subarvores):
+	for arvore_i in range(len(subarvores)):
+		for u in range(len(subarvores[arvore_i])):
+			if subarvores[arvore_i][u] == vertice:
+				return arvore_i
+	return 0
+    
+def kruskal(grafo):
+	arestas = []												# elemento de 'arestas[]' é uma tupla (u, v, peso)
+	matriz = grafo.matriz()										#
+	infinite = grafo.infinito									#
+	for i in range(grafo.qtdVertices()):						# constrói arranjo de arestas
+		for j in range(grafo.qtdVertices()):					#
+			if matriz[i][j] < infinite:							#
+				arestas.append((i, j, matriz[i][j]))			#
+	quick_sort(arestas, 0, len(arestas)-1)						# ordena as arestas
+	
+	arvoreGM = []
+	subarvores = [[] for _ in range(grafo.qtdVertices())]			# elemento de 'subarvores' é uma lista de vertices
+	x = []
+	
+	for i in range(len(subarvores)):
+		subarvores[i].append(i)
+	
+	somatoria = 0
+	for aresta in arestas:
+		xtemp = []
+		if array_compare_different(subarvores[aresta[0]], subarvores[aresta[1]]):
+			arvoreGM.append(aresta)
+			somatoria = somatoria + aresta[2]
+			xtemp = subarvores[aresta[0]]
+			xtemp.extend(subarvores[aresta[1]])
+			x = xtemp
+			for y in x:
+				subarvores[y] = x
+
+	print_kruskal(arvoreGM, somatoria)
+			
+def print_kruskal(arvoreGM, somatoria):
+	print(somatoria)
+	for aresta in arvoreGM:
+		print(aresta[0],aresta[1],sep='-',end=", ")
+	print("\b\b", end=" ")
+	print()
+		
 
 def a2():
     # exe1
@@ -221,6 +300,9 @@ def a2():
     # print("Componentes fortemente conexas")
     # componentes_fortemente_conexas(grafo)
 
+	grafo = Grafo("./tests/caminho_minimo/fln_pequena.net")
+	kruskal(grafo)
     #exe2
-    grafo = Grafo("./tests/dirigidos/manha.net")
-    ordenacao_topologica(grafo)
+    #grafo = Grafo("./tests/dirigidos/manha.net")
+    #ordenacao_topologica(grafo)
+#-------------------------------------------------------------------------------
