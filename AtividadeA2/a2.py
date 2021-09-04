@@ -17,7 +17,7 @@ class Grafo:
             for _ in range(qtdVertices):
                 linha = arquivo.readline()
                 self.__rotulos.append(linha[linha.index(" ") + 1:-1])
-                temp = linha.split(' "')
+                temp = linha.split(' ')
                 k, v = temp[0], temp[1]
                 self.__vertices[int(k)] = v.rstrip("\n").strip('\"')
 
@@ -307,7 +307,7 @@ def print_kruskal(arvoreGM, somatoria):
 
 
 def a2():
-    grafo = Grafo("./tests/caminho_minimo/fln_pequena.net")
+    grafo = Grafo("./tests/dirigidos/dirigido1.net")
 
     print("\n1 - Componentes fortemente conexas")
     componentes_fortemente_conexas(grafo)
