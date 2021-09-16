@@ -111,16 +111,91 @@ class Grafo:
 # --------------------- Q1 -----------------------------
 def edmonds_karp():
     print("Edmonds Karp")
+    caminho_arquivo = input("Entre com caminho do arquivo de teste: ")
+    grafo = Grafo(caminho_arquivo, sys.maxsize)
 
 
 # --------------------- Q2 -----------------------------
 def hopcroft_karp():
     print("Hopcroft Karp")
+    caminho_arquivo = input("Entre com caminho do arquivo de teste: ")
+    grafo = Grafo(caminho_arquivo, sys.maxsize)
 
 
 # --------------------- Q3 -----------------------------
+def potencia(elementos):
+    qtdElementos = len(elementos)
+    potencias = {}
+
+    for i in range(1 << qtdElementos):
+        potencias[i] = set(
+            [elementos[j] for j in range(qtdElementos) if (i & (1 << j))])
+
+    return potencias
+
+
+def conjuntos_independentes(grafo, subconjunto):
+    S_ = potencia(list(subconjunto))
+    independentes = []
+
+    for s in S_:
+        S = S_[s]
+        try:
+            for u in S:
+                for v in S:
+                    if (grafo.haAresta(u, v) or grafo.haAresta(v, u)) and u != v:
+                        raise Exception()
+        except:
+            continue
+
+        independentes.append(S)
+
+    return independentes
+
+
+def f(subconjunto, potencias):
+    for i in potencias:
+        if potencias[i] == subconjunto:
+            return i
+
+    return -1
+
+
 def coloracao_vertices():
     print("Coloração de Vértices")
+    caminho_arquivo = input("Entre com caminho do arquivo de teste: ")
+    grafo = Grafo(caminho_arquivo, sys.maxsize)
+
+    # lawler
+    X = [grafo.pesoMinMax] * (1 << grafo.qtdVertices())
+    X[0] = 0
+
+    S_ = potencia(list(range(1, grafo.qtdVertices()+1)))
+
+    for s in S_:
+        S = S_[s]
+        independentes = conjuntos_independentes(grafo, S)
+        for I in independentes:
+            i = f(S.difference(I), S_)
+            if X[i] + 1 < X[s]:
+                X[s] = X[i] + 1
+
+    grupo_cores = [[] for _ in range(X[-1])]
+    for u in range(1, grafo.qtdVertices()+1):
+        for grupo in grupo_cores:
+            try:
+                for v in grupo:
+                    if grafo.haAresta(u, v) or grafo.haAresta(v, u):
+                        raise Exception()
+            except:
+                continue
+            grupo.append(u)
+            break
+
+    print(f"Coloração mínima: {X[-1]}")
+    for i in range(len(grupo_cores)):
+        string = [str(e) for e in grupo_cores[i]]
+        print(f"Cromático {i + 1}: {', '.join(string)}")
 
 
 def a3():
