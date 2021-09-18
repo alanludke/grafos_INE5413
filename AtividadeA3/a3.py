@@ -123,7 +123,9 @@ def hopcroft_karp():
 
 
 # --------------------- Q3 -----------------------------
+# conjunto enumerado de potencia
 def potencia(elementos):
+    # https://stackoverflow.com/questions/1482308/how-to-get-all-subsets-of-a-set-powerset/1482320#1482320
     qtdElementos = len(elementos)
     potencias = {}
 
@@ -134,35 +136,18 @@ def potencia(elementos):
     return potencias
 
 
-def conjuntos_independentes(grafo, subconjunto):
-    S_ = potencia(list(subconjunto))
-    independentes = []
-
-    for s in S_:
-        S = S_[s]
-        try:
-            for u in S:
-                for v in S:
-                    if (grafo.haAresta(u, v) or grafo.haAresta(v, u)) and u != v:
-                        raise Exception()
-        except:
-            continue
-
-        independentes.append(S)
-
-    return independentes
-
-
+# encontra numero do elemento atribuido nas potencias
 def f(subconjunto, potencias):
     for i in potencias:
         if potencias[i] == subconjunto:
             return i
 
-    return -1
+    return 0
 
 
 def coloracao_vertices():
     print("Coloração de Vértices")
+    # arquivos que foram utilizados para teste: ./tests/coloracao/ pentagrama, pentagono, cor3
     caminho_arquivo = input("Entre com caminho do arquivo de teste: ")
     grafo = Grafo(caminho_arquivo, sys.maxsize)
 
@@ -174,7 +159,21 @@ def coloracao_vertices():
 
     for s in S_:
         S = S_[s]
-        independentes = conjuntos_independentes(grafo, S)
+        S_potencia = potencia(list(S))
+        independentes = []
+
+        # encontra conjuntos independentes
+        for sp in S_potencia:
+            Ssp = S_potencia[sp]
+            try:
+                for u in Ssp:
+                    for v in Ssp:
+                        if (grafo.haAresta(u, v) or grafo.haAresta(v, u)) and u != v:
+                            raise Exception()
+            except:
+                continue
+            independentes.append(Ssp)
+
         for I in independentes:
             i = f(S.difference(I), S_)
             if X[i] + 1 < X[s]:
@@ -189,9 +188,14 @@ def coloracao_vertices():
                         raise Exception()
             except:
                 continue
+
             grupo.append(u)
             break
 
+    print_coloracao(X, grupo_cores)
+
+
+def print_coloracao(X, grupo_cores):
     print(f"Coloração mínima: {X[-1]}")
     for i in range(len(grupo_cores)):
         string = [str(e) for e in grupo_cores[i]]
