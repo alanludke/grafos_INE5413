@@ -143,7 +143,7 @@ def edmonds_karp():
     s = 0
     t = len(matriz_adj) - 1
     caminho = caminho_aumentante(matriz_adj, residual, s ,t)
-    while path != None:
+    while caminho != None:
     	fluxo = min(matriz_adj[u][v] - residual[u][v] for u,v in caminho)
     	for u,v in caminho:
     		residual[u][v] += fluxo
