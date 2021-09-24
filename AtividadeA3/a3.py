@@ -109,11 +109,48 @@ class Grafo:
 
 
 # --------------------- Q1 -----------------------------
+def caminho_aumentante(matriz_adj, residual, s, t):
+	queue = [s]
+	caminho = {s:[]}
+	if s == t:
+		return caminho[s]
+	while queue:
+		u = queue.pop(0)
+		for v in range(len(matriz_adj)):
+			if (matriz_adj[u][v] - residual[u][v] > 0) and v not in caminho:
+				caminho[v] = caminho[u]+[(u,v)]
+				if v == t:
+					return caminho[v]
+				queue.append(v)
+		return None
+
 def edmonds_karp():
     print("Edmonds Karp")
     caminho_arquivo = input("Entre com caminho do arquivo de teste: ")
-    grafo = Grafo(caminho_arquivo, sys.maxsize)
-
+    grafo = Grafo(caminho_arquivo, 0)
+    
+    # matriz de adjacência
+    matriz_adj = grafo.matriz()
+    
+    # cria rede residual
+    residual = []
+    for i in range(len(matriz_adj)):
+    	residual.append([0] * len(matriz_adj))
+    for i in range(len(matriz_adj)):
+    	for j in range(len(matriz_adj)):
+    		residual[i][j] = matriz_adj[i][j]
+    
+    s = 0
+    t = len(matriz_adj) - 1
+    caminho = caminho_aumentante(matriz_adj, residual, s ,t)
+    while path != None:
+    	fluxo = min(matriz_adj[u][v] - residual[u][v] for u,v in caminho)
+    	for u,v in caminho:
+    		residual[u][v] += fluxo
+    		residual[v][u] -= fluxo
+    	caminho = caminho_aumentante(matriz_adj, residual, s, t)
+    
+    print("Fluxo máximo: ", sum(residual[s][i] for i in range(len(matriz_adj))))
 
 # --------------------- Q2 -----------------------------
 def hopcroft_karp():
